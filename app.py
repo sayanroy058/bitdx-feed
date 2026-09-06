@@ -150,14 +150,14 @@ def tick_at(ts_ms):
         "low": f"{low:.5f}",
         "open": f"{open_:.5f}",
         "close": f"{close:.5f}",
-        "timestamp": str(BASE_TS + elapsed * SECOND_MS),
         "volume": f"{volume:.2f}",
+        "timestamp": str(BASE_TS + elapsed * SECOND_MS),
     }
 
 
 # ------------------------------------------------------------------ plain feed
 
-CSV_FIELDS = ["symbol", "rate", "high", "low", "open", "close", "timestamp", "volume"]
+CSV_FIELDS = ["symbol", "rate", "high", "low", "open", "close", "volume", "timestamp"]
 
 
 def tick_to_csv(tick):

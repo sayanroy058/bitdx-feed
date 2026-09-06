@@ -31,16 +31,16 @@ Example JSON response:
   "low": "2.39354",
   "open": "2.39725",
   "close": "2.39685",
-  "timestamp": "1788693365262",
-  "volume": "0.25"
+  "volume": "0.25",
+  "timestamp": "1788693365262"
 }
 ```
 
 Example CSV response:
 
 ```csv
-symbol,rate,high,low,open,close,timestamp,volume
-BITDXUSDB,2.39685,2.40180,2.39354,2.39725,2.39685,1788693365262,0.25
+symbol,rate,high,low,open,close,volume,timestamp
+BITDXUSDB,2.39685,2.40180,2.39354,2.39725,2.39685,0.25,1788693365262
 ```
 
 ### TradingView UDF datafeed
