@@ -1,13 +1,18 @@
 # BITDXUSDB Live Feed API
 
 A self-hostable, deterministic price feed for the synthetic instrument `BITDXUSDB`.
-One tick per second, generated on the fly — no database, no state. The same
-request always returns the same answer, and the feed never runs out of data.
+One tick per second, no database, no state — the same request always returns the
+same answer, and the feed never runs out of data.
 
 Prices follow a realistic day-by-day zigzag story (1 → 5 → 3 → 5 → 9 → 2 → …)
 where each day is a Brownian bridge between daily targets, so the path wanders
-up and down intraday yet lands exactly on each day's target. Past the initial
-7-day table, daily targets keep extending with seeded random up/down swings.
+up and down intraday yet lands exactly on each day's target.
+
+**The live feed matches the committed dataset.** For its first 7 days the API
+serves values that are byte-identical to `next_7_days_seconds.csv` and the
+second-wise JSON export — it replays the same seeded random stream. Past day 7
+the feed continues deterministically in the same style (seeded up/down swings),
+so it never stops and never loops.
 
 **Live deployment:** `https://bitdx-feed.onrender.com`
 
@@ -190,13 +195,18 @@ Notes:
 ## 3. Static 7-day dataset (repo file)
 
 `next_7_days_seconds.csv` (604,800 rows = 7 days × 86,400 seconds) is versioned
-in this repo. Regenerate it (and the JSON export) with:
+in this repo. The running API serves these exact values for the corresponding
+wall-clock seconds — e.g. requesting the current tick returns the row whose
+`timestamp` equals now, byte-for-byte.
+
+Regenerate the exports with:
 
 ```bash
 python3 generate_seconds_prices.py
 ```
 
-Columns: `symbol,rate,high,low,open,close,timestamp,volume`.
+Columns: `symbol,rate,high,low,open,close,timestamp,volume` (API responses use
+the same values in the order `symbol,rate,high,low,open,close,volume,timestamp`).
 The JSON export is gitignored (~92 MB; GitHub rejects files over 100 MB).
 
 ---
@@ -220,9 +230,9 @@ gunicorn app:app --bind 0.0.0.0:8000
 ## 6. Notes
 
 - Feed epoch: ticks start at unix second `1788647843` (millisecond timestamp
-  `1788647842262`). The `/` endpoint returns the tick for the current
-  wall-clock second, so `timestamp` always equals "now" ± 1 s.
-- Generation is fully deterministic: identical requests always return
-  identical data. Within the first 7 days the API serves byte-identical values
-  to `next_7_days_seconds.csv` / the second-wise JSON (same seeded RNG stream);
-  beyond day 7 it continues in the same style without ever stopping or looping.
+  `1788647842262`) and end their first 7-day window at unix second
+  `1789252643`. The `/` endpoint returns the tick for the current wall-clock
+  second, so `timestamp` always equals "now" ± 1 s.
+- Determinism is guaranteed twice over: identical requests return identical
+  data, and within the 7-day window every price also equals the versioned CSV
+  / JSON dataset exactly (verified byte-for-byte across sampled seconds).
