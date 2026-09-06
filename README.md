@@ -223,4 +223,6 @@ gunicorn app:app --bind 0.0.0.0:8000
   `1788647842262`). The `/` endpoint returns the tick for the current
   wall-clock second, so `timestamp` always equals "now" ± 1 s.
 - Generation is fully deterministic: identical requests always return
-  identical data, and the API and the static dataset follow the same series.
+  identical data. Within the first 7 days the API serves byte-identical values
+  to `next_7_days_seconds.csv` / the second-wise JSON (same seeded RNG stream);
+  beyond day 7 it continues in the same style without ever stopping or looping.

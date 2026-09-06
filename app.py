@@ -14,16 +14,19 @@ Two interfaces, one deterministic generator:
      GET /api/datafeed/search?query=...&limit=...
      GET /api/datafeed/history?symbol=...&from=<unix s>&to=<unix s>&resolution=1S|5S|...|1D
 
-Ticks are generated deterministically per wall-clock second, in the same style
-as the static 7-day dataset (day-by-day zigzag targets bridged by a seeded
-random walk). No state, no database; identical requests get identical answers.
-Past the 7-day table, daily targets keep extending with seeded up/down swings.
+The first 7 days (604,800 ticks) are replayed at startup from the exact same
+seeded global RNG stream that generate_seconds_prices.py uses, so every price
+served in that window is byte-identical to next_7_days_seconds.csv / .json.
+Past the 7-day window the feed continues deterministically (same daily-target
+swings, bridged random walks) so it never stops and never loops. No state, no
+database; identical requests get identical answers.
 """
 
 import math
 import os
 import random
 import time
+from array import array
 
 from flask import Flask, Response, jsonify, request
 
@@ -38,9 +41,10 @@ BASE_TS = 1788647842262
 BASE_SEC = BASE_TS // 1000
 SECOND_MS = 1000
 DAY_SECONDS = 86400
+DAYS = 7
+N_TICKS = DAYS * DAY_SECONDS  # 604,800 ticks in the static dataset window
 
 # Chained daily targets for the first 7 days: day 0: 1 -> 5, ..., day 6: 8 -> 5.
-# end_of_day(d) is DAY_POINTS[d + 1].
 DAY_POINTS = [1.0, 5.0, 3.0, 5.0, 9.0, 2.0, 8.0, 5.0]
 
 # ~8% daily volatility expressed as per-second noise for the intraday walk.
@@ -69,6 +73,56 @@ RES_SECONDS = {
     "1D": 86400,
 }
 
+
+# ------------------------------------------------------- dataset replay (7 days)
+
+def _build_dataset():
+    """Replay generate_seconds_prices.py's exact RNG stream and store it.
+
+    The generator seeds one global random.Random(BASE_TS) and, per day, first
+    draws one gauss per second for the Brownian bridge, then three uniforms
+    per tick (high, low, volume). Replicating that draw order makes every
+    stored value identical to the CSV/JSON export. Values are stored as raw
+    doubles; formatting to 5/2 decimals later yields byte-equal strings.
+    """
+    rng = random.Random(BASE_TS)
+    closes = array("d")
+    highs = array("d")
+    lows = array("d")
+    vols = array("d")
+    prev_close = DAY_POINTS[0]
+    n = DAY_SECONDS
+
+    for d in range(DAYS):
+        start, end = DAY_POINTS[d], DAY_POINTS[d + 1]
+        # Brownian bridge, same gauss order as the generator.
+        w = [0.0]
+        for _ in range(n):
+            w.append(w[-1] + SIGMA * rng.gauss(0, 1))
+        w_n = w[n]
+        l0, l1 = math.log(start), math.log(end)
+        for i in range(1, n + 1):
+            frac = i / n
+            logp = l0 + (l1 - l0) * frac + w[i] - frac * w_n
+            open_ = prev_close
+            close = math.exp(logp)
+            high = max(open_, close) * (1 + rng.uniform(0.0002, 0.002))
+            low = min(open_, close) * (1 - rng.uniform(0.0002, 0.002))
+            volume = round(rng.uniform(0.05, 0.35), 2)
+            closes.append(close)
+            highs.append(high)
+            lows.append(low)
+            vols.append(volume)
+            prev_close = close
+
+    return closes, highs, lows, vols
+
+
+DS_CLOSES, DS_HIGHS, DS_LOWS, DS_VOLS = _build_dataset()
+
+
+# ------------------------------------------- deterministic continuation (> 7 days)
+
 # _ext_targets[k] == price at the end of day k; starts from DAY_POINTS and
 # grows lazily as wall-clock time moves past the initial 7 days.
 _ext_targets = list(DAY_POINTS)
@@ -77,8 +131,6 @@ _ext_targets = list(DAY_POINTS)
 _bridge_cache = {}
 MAX_CACHED_DAYS = 3
 
-
-# ---------------------------------------------------------------- generation
 
 def end_of_day(day):
     """Price at the end of `day` (== start of day+1), deterministic forever."""
@@ -125,8 +177,8 @@ def rnd01(j, salt):
     return x - math.floor(x)
 
 
-def second_ohlc(j):
-    """OHLCV floats of the tick with 0-based index `j` (deterministic)."""
+def _extended_ohlc(j):
+    """OHLCV for ticks past the 7-day window (day index >= DAYS)."""
     day, pos = divmod(j, DAY_SECONDS)
     pos += 1  # 1..86400 boundary index inside the day
     offsets = day_offsets(day)
@@ -136,6 +188,14 @@ def second_ohlc(j):
     low = min(open_, close) * (1 - 0.0002 - 0.0018 * rnd01(j, 2))
     volume = 0.05 + 0.30 * rnd01(j, 3)
     return open_, high, low, close, volume
+
+
+def second_ohlc(j):
+    """OHLCV floats of the tick with 0-based index `j` (dataset-exact)."""
+    if j < N_TICKS:
+        open_ = DAY_POINTS[0] if j == 0 else DS_CLOSES[j - 1]
+        return open_, DS_HIGHS[j], DS_LOWS[j], DS_CLOSES[j], DS_VOLS[j]
+    return _extended_ohlc(j)
 
 
 def tick_at(ts_ms):
