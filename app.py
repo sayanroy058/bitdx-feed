@@ -28,6 +28,9 @@ import time
 from flask import Flask, Response, jsonify, request
 
 app = Flask(__name__)
+# Keep JSON keys in the order we build them (symbol first, timestamp last)
+# instead of Flask's alphabetical sorting.
+app.json.sort_keys = False
 
 SYMBOL = "BITDXUSDB"
 # Milliseconds of tick index 0 (matches the generated 7-day dataset).
