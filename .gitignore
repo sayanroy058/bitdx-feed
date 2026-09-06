@@ -1,0 +1,7 @@
+.venv/
+__pycache__/
+*.pyc
+
+# Large regenerable data exports (see generate_seconds_prices.py)
+next_7_days_seconds.json
+next_7_days_seconds.csv
