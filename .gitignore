@@ -4,4 +4,3 @@ __pycache__/
 
 # Large regenerable JSON export (see generate_seconds_prices.py);
 # the CSV export is versioned in the repo.
-next_7_days_seconds.json
