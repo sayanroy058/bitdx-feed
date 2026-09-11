@@ -1,4 +1,4 @@
-"""Live BITDXUSDB data feed API (Render-ready).
+"""Live BI2X/BIUSDB data feed API (Render-ready).
 
 Two interfaces, one deterministic generator:
 
@@ -10,7 +10,7 @@ Two interfaces, one deterministic generator:
 2. TradingView UDF datafeed (for the charting library):
      GET /api/datafeed/config
      GET /api/datafeed/time
-     GET /api/datafeed/symbols?symbol=BITDXUSDB
+    GET /api/datafeed/symbols?symbol=BI2X/BIUSDB
      GET /api/datafeed/search?query=...&limit=...
      GET /api/datafeed/history?symbol=...&from=<unix s>&to=<unix s>&resolution=1S|5S|...|1D
 
@@ -35,9 +35,9 @@ app = Flask(__name__)
 # instead of Flask's alphabetical sorting.
 app.json.sort_keys = False
 
-SYMBOL = "BITDXUSDB"
+SYMBOL = "BI2X/BIUSDB"
 # Milliseconds of tick index 0 (matches the generated 7-day dataset).
-BASE_TS = 1788647842262
+BASE_TS = 1788998400000  # 2026-09-10 00:00:00 UTC
 BASE_SEC = BASE_TS // 1000
 SECOND_MS = 1000
 DAY_SECONDS = 86400

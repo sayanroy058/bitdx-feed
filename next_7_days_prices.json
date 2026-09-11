@@ -1,6 +1,6 @@
 [
   {
-    "symbol": "BITDXUSDB",
+    "symbol": "BI2X/BIUSDB",
     "rate": "1.16205",
     "bid": "1.16205",
     "ask": "1.16220",
@@ -8,11 +8,11 @@
     "low": "1.15890",
     "open": "1.16122",
     "close": "1.16205",
-    "timestamp": "1788647842262",
+    "timestamp": "1788998400000",
     "volume": "126.73"
   },
   {
-    "symbol": "BITDXUSDB",
+    "symbol": "BI2X/BIUSDB",
     "rate": "1.16048",
     "bid": "1.16048",
     "ask": "1.16063",
@@ -20,11 +20,11 @@
     "low": "1.15740",
     "open": "1.16205",
     "close": "1.16048",
-    "timestamp": "1788734242262",
+    "timestamp": "1789084800000",
     "volume": "131.25"
   },
   {
-    "symbol": "BITDXUSDB",
+    "symbol": "BI2X/BIUSDB",
     "rate": "1.16412",
     "bid": "1.16412",
     "ask": "1.16427",
@@ -32,11 +32,11 @@
     "low": "1.15910",
     "open": "1.16048",
     "close": "1.16412",
-    "timestamp": "1788820642262",
+    "timestamp": "1789171200000",
     "volume": "142.90"
   },
   {
-    "symbol": "BITDXUSDB",
+    "symbol": "BI2X/BIUSDB",
     "rate": "1.16187",
     "bid": "1.16187",
     "ask": "1.16202",
@@ -44,11 +44,11 @@
     "low": "1.15860",
     "open": "1.16412",
     "close": "1.16187",
-    "timestamp": "1788907042262",
+    "timestamp": "1789257600000",
     "volume": "118.44"
   },
   {
-    "symbol": "BITDXUSDB",
+    "symbol": "BI2X/BIUSDB",
     "rate": "1.16344",
     "bid": "1.16344",
     "ask": "1.16359",
@@ -56,11 +56,11 @@
     "low": "1.16010",
     "open": "1.16187",
     "close": "1.16344",
-    "timestamp": "1788993442262",
+    "timestamp": "1789344000000",
     "volume": "152.08"
   },
   {
-    "symbol": "BITDXUSDB",
+    "symbol": "BI2X/BIUSDB",
     "rate": "1.15996",
     "bid": "1.15996",
     "ask": "1.16011",
@@ -68,11 +68,11 @@
     "low": "1.15780",
     "open": "1.16344",
     "close": "1.15996",
-    "timestamp": "1789079842262",
+    "timestamp": "1789430400000",
     "volume": "137.61"
   },
   {
-    "symbol": "BITDXUSDB",
+    "symbol": "BI2X/BIUSDB",
     "rate": "1.16173",
     "bid": "1.16173",
     "ask": "1.16188",
@@ -80,7 +80,7 @@
     "low": "1.15830",
     "open": "1.15996",
     "close": "1.16173",
-    "timestamp": "1789166242262",
+    "timestamp": "1789516800000",
     "volume": "129.85"
   }
 ]

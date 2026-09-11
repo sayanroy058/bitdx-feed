@@ -1,6 +1,6 @@
-# BITDXUSDB Live Feed API
+# BI2X/BIUSDB Live Feed API
 
-A self-hostable, deterministic price feed for the synthetic instrument `BITDXUSDB`.
+A self-hostable, deterministic price feed for the synthetic instrument `BI2X/BIUSDB`.
 One tick per second, no database, no state — the same request always returns the
 same answer, and the feed never runs out of data.
 
@@ -29,7 +29,7 @@ Expected result (values change every second):
 
 ```json
 {
-  "symbol": "BITDXUSDB",
+  "symbol": "BI2X/BIUSDB",
   "rate": "2.42868",
   "high": "2.43274",
   "low": "2.42757",
@@ -46,7 +46,7 @@ Expected result (header row + one data row):
 
 ```csv
 symbol,rate,high,low,open,close,volume,timestamp
-BITDXUSDB,2.42868,2.43274,2.42757,2.42884,2.42868,0.26,1788694235262
+BI2X/BIUSDB,2.42868,2.43274,2.42757,2.42884,2.42868,0.26,1788694235262
 ```
 
 ### `GET /` with `Accept: text/csv` — CSV auto-detected
@@ -55,18 +55,18 @@ Same CSV output as above.
 
 ### `GET /tick?ts=<milliseconds>` — tick at a specific time
 
-Example: `GET /tick?ts=1788647843262` (the very first tick of the feed)
+Example: `GET /tick?ts=1788998401000` (the very first tick of the feed)
 
 ```json
 {
-  "symbol": "BITDXUSDB",
-  "rate": "1.00006",
-  "high": "1.00059",
-  "low": "0.99975",
+  "symbol": "BI2X/BIUSDB",
+  "rate": "1.00011",
+  "high": "1.00114",
+  "low": "0.99866",
   "open": "1.00000",
-  "close": "1.00006",
-  "volume": "0.13",
-  "timestamp": "1788647843262"
+  "close": "1.00011",
+  "volume": "0.23",
+  "timestamp": "1788998401000"
 }
 ```
 
@@ -75,7 +75,7 @@ Also supports `?format=csv` / `Accept: text/csv`.
 ### `GET /health` — liveness check
 
 ```json
-{"status": "ok", "symbol": "BITDXUSDB"}
+{"status": "ok", "symbol": "BI2X/BIUSDB"}
 ```
 
 ---
@@ -108,14 +108,14 @@ new Datafeeds.UDFCompatibleDatafeed("https://bitdx-feed.onrender.com/api/datafee
 {"serverTime": 1788694295}
 ```
 
-### `GET /api/datafeed/symbols?symbol=BITDXUSDB` — symbol metadata
+### `GET /api/datafeed/symbols?symbol=BI2X/BIUSDB` — symbol metadata
 
 ```json
 {
-  "symbol": "BITDXUSDB",
-  "ticker": "BITDXUSDB",
-  "full_name": "BITDXUSDB",
-  "description": "BITDXUSDB (live synthetic feed)",
+  "symbol": "BI2X/BIUSDB",
+  "ticker": "BI2X/BIUSDB",
+  "full_name": "BI2X/BIUSDB",
+  "description": "BI2X/BIUSDB (live synthetic feed)",
   "exchange": "BITDX",
   "type": "crypto",
   "session": "24x7",
@@ -138,10 +138,10 @@ new Datafeeds.UDFCompatibleDatafeed("https://bitdx-feed.onrender.com/api/datafee
 ```json
 [
   {
-    "symbol": "BITDXUSDB",
-    "ticker": "BITDXUSDB",
-    "full_name": "BITDXUSDB",
-    "description": "BITDXUSDB (live synthetic feed)",
+    "symbol": "BI2X/BIUSDB",
+    "ticker": "BI2X/BIUSDB",
+    "full_name": "BI2X/BIUSDB",
+    "description": "BI2X/BIUSDB (live synthetic feed)",
     "exchange": "BITDX",
     "type": "crypto"
   }
@@ -150,7 +150,7 @@ new Datafeeds.UDFCompatibleDatafeed("https://bitdx-feed.onrender.com/api/datafee
 
 Returns `[]` when the query does not match.
 
-### `GET /api/datafeed/history?symbol=BITDXUSDB&from=<unix s>&to=<unix s>&resolution=<res>` — OHLCV bars
+### `GET /api/datafeed/history?symbol=BI2X/BIUSDB&from=<unix s>&to=<unix s>&resolution=<res>` — OHLCV bars
 
 Supported resolutions (seconds, minutes, daily):
 
@@ -168,7 +168,7 @@ Expected result when data exists:
 ```json
 {
   "s": "ok",
-  "t": [1788647843, 1788647844, 1788647845],
+  "t": [1788998401, 1788998402, 1788998403],
   "o": [1.0, 1.00006, 1.00037],
   "h": [1.00059, 1.0019, 1.00158],
   "l": [0.99975, 0.99972, 0.99938],
@@ -178,10 +178,10 @@ Expected result when data exists:
 ```
 
 Expected result when the requested window has no data (e.g. before the feed
-started at unix second `1788647843`):
+started at unix second `1788998400`):
 
 ```json
-{"s": "no_data", "nextTime": 1788647843}
+{"s": "no_data", "nextTime": 1788998400}
 ```
 
 Notes:
@@ -229,8 +229,8 @@ gunicorn app:app --bind 0.0.0.0:8000
 
 ## 6. Notes
 
-- Feed epoch: ticks start at unix second `1788647843` (millisecond timestamp
-  `1788647842262`) and end their first 7-day window at unix second
+- Feed epoch: ticks start at unix second `1788998400` (millisecond timestamp
+  `1788998400000`) and end their first 7-day window at unix second
   `1789252643`. The `/` endpoint returns the tick for the current wall-clock
   second, so `timestamp` always equals "now" ± 1 s.
 - Determinism is guaranteed twice over: identical requests return identical

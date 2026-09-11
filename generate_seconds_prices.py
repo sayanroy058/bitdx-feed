@@ -2,8 +2,8 @@ import json
 import math
 import random
 
-SYMBOL = "BITDXUSDB"
-BASE_TS = 1788647842262  # ms, matches the sample
+SYMBOL = "BI2X/BIUSDB"
+BASE_TS = 1788998400000  # 2026-09-10 00:00:00 UTC
 DAY_SECONDS = 86400
 DAYS = 7
 
